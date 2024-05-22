@@ -5,6 +5,8 @@ FROM openjdk:17-jdk-slim AS build
 COPY gradlew .
 COPY gradle gradle
 
+# Copy the project files
+COPY . .
 
 # Build the project
 RUN ./gradlew clean build
