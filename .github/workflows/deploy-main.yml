@@ -18,37 +18,15 @@ jobs:
         uses: cloudtype-github-actions/deploy@v1
         with:
           token: ${{ secrets.CLOUDTYPE_TOKEN }}
-          project: st.jyeon/jsp-project
+          project: st.jyeon/java-springboot
           stage: main
-          yaml: >
+          yaml: |
             name: jsp-project
-
-            app: dockerfile@
-
+            app: java@17
             options:
-              dockerfile: Dockerfile
-              env:
-                - name: spring.application.name
-                  value: project
-                - name: spring.data.mongodb.uri
-                  value: mongodb://mongodb:27017/testdb
-                - name: spring.mvc.static-path-pattern
-                  value: /resources/static/**
-                - name: jwt.secret
-                  value: Q4NSl604sgyHJj1qwEkR3ycUeR4uUAt7WJraD7EN3O9DVM4yyYuHxMEbSF4XXyYJkal13eqgB0F7Bq4HGdW13SDF41231FDSAH412141234GFD131GF1g1GDS13
-                - name: jwt.expiration
-                  value: "3600"
-                - name: spring.mvc.view.prefix
-                  value: /WEB-INF/jsp/
-                - name: spring.mvc.view.suffix
-                  value: .jsp
-                - name: spring.jackson.deserialization.adjust-dates-to-context-time-zone
-                  value: "false"
-                - name: spring.jackson.time-zone
-                  value: Asia/Seoul
-              dockerfiletext: ""
+              ports: 8080
+              build: ./gradlew build
             context:
               git:
                 url: git@github.com:choizia0724/jsp_project.git
                 ref: main
-              preset: dockerfile
