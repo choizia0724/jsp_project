@@ -41,6 +41,17 @@ dependencies {
 
 
 }
-tasks.named('test') {
-	useJUnitPlatform()
+bootWar {
+	archiveFileName = 'app.war'
+}
+
+springBoot {
+	mainClass.set('com.zia.project.ProjectApplication')
+}
+
+apply plugin: 'java'
+jar {
+	manifest {
+		attributes 'Main-Class': 'com.zia.project'
+	}
 }
