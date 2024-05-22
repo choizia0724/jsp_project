@@ -1,6 +1,6 @@
 # Use an OpenJDK 17 base image
 FROM openjdk:17-jdk-slim AS build
-
+WORKDIR /project
 # Copy Gradle files
 COPY gradlew .
 COPY gradle gradle
@@ -15,7 +15,7 @@ RUN ./gradlew clean build
 FROM openjdk:17-jdk-slim
 
 # Copy the built WAR file
-COPY build/libs/*.war app.war
+COPY /project/build/libs/*.war app.war
 
 # Expose the port the app runs on
 EXPOSE 8080
