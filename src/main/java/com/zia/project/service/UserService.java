@@ -7,6 +7,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.Document;
+
 @Service
 public class UserService {
     @Autowired
@@ -19,4 +21,14 @@ public class UserService {
         user.setPassword(hashedPassword);
         return userRepository.save(user);
     }
+
+    public boolean checkUsernameExists(String username) {
+        return userRepository.findByUsername(username) != null;
+    }
+
+    public boolean validateUser(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        return user != null && passwordEncoder.matches(password, user.getPassword());
+    }
+
 }

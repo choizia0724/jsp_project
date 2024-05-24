@@ -9,6 +9,10 @@
     $(document).ready(function () {
         var validationSuccess = $("#validation-success");
 
+        var response="${response}";
+        if(response!==""){
+            alert(response)
+        }
         $("#loginForm").kendoForm({
             orientation: "vertical",
             items: [{

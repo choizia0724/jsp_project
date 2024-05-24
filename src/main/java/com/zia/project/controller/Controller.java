@@ -11,13 +11,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -47,15 +45,19 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
-    @GetMapping("/login")
-    public String showLoginForm(Model model) {
-        model.addAttribute("bodyItem", "Member");
-        model.addAttribute("direct", "login");
-        return "index";
-    }
 
     @PostMapping("/login")
-    public String login(User user,HttpServletRequest request, HttpServletResponse response,Model model) {
+
+    public String login(HttpServletRequest request,Model model, User user) {
+        boolean isValidUser = userService.validateUser(user.getUsername(), user.getPassword());
+        if (!isValidUser) {
+            model.addAttribute("response", "invalid username or password");
+            model.addAttribute("bodyItem", "Member");
+            model.addAttribute("direct", "login");
+            return "index";
+        }else{
+            model.addAttribute("user", user);
+        }
         model.addAttribute("bodyItem", "Member");
         UserDetails userDetails = new MyUserDetails(user.getUsername(), user.getPassword());
         String token = jwtUtil.generateToken(userDetails);
@@ -63,6 +65,13 @@ public class Controller implements WebMvcConfigurer {
         session.setAttribute("jwtToken", token);
         return "redirect:/";
     }
+    @GetMapping("/login")
+    public String showLoginForm(Model model) {
+        model.addAttribute("bodyItem", "Member");
+        model.addAttribute("direct", "login");
+        return "index";
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {
 
@@ -88,15 +97,24 @@ public class Controller implements WebMvcConfigurer {
 
 
     @PostMapping("/signup")
-    public String signup(User user, HttpServletResponse response) {
-        userService.createUser(user);
-        UserDetails userDetails = new MyUserDetails(user.getUsername(), user.getPassword());
-        String token = jwtUtil.generateToken(userDetails);
-        Cookie cookie = new Cookie("jwtToken", token);
-        cookie.setMaxAge(60 * 60);
-        response.addCookie(cookie);
+    public String signup(User user, HttpServletResponse response,Model model) {
+        boolean exists = userService.checkUsernameExists(user.getUsername());
+        if (exists) {
+            model.addAttribute("response", "username exists");
+            model.addAttribute("bodyItem", "Member");
+            model.addAttribute("direct", "signup");
+            return "index";
+        }else{
+            userService.createUser(user);
+            UserDetails userDetails = new MyUserDetails(user.getUsername(), user.getPassword());
+            String token = jwtUtil.generateToken(userDetails);
+            Cookie cookie = new Cookie("jwtToken", token);
+            cookie.setMaxAge(60 * 60);
+            response.addCookie(cookie);
 
-        return "redirect:/";
+            return "redirect:/";
+        }
+
     }
 
     @GetMapping("/read/{id}")
