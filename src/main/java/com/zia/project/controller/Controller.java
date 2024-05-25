@@ -23,6 +23,7 @@ import java.util.List;
 
 @org.springframework.stereotype.Controller
 public class Controller implements WebMvcConfigurer {
+
     @Autowired
     private JwtUtil jwtUtil;
     @Autowired
@@ -31,9 +32,13 @@ public class Controller implements WebMvcConfigurer {
     private PostService postService;
 
 
+    /**
+     * 기본 게시판(메인화면)
+     * */
     @GetMapping("/")
     public String home(Model model, HttpServletRequest request) {
         List<Post> posts = postService.getAllPosts();
+        //쿠키에 저장된 jwtToken를 불러옵니다.
         HttpSession session = request.getSession();
         String val = (String)session.getAttribute("jwtToken");
         if (val != null) {
@@ -45,18 +50,18 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
-
+    /**
+     * 로그인 정보 post 처리
+     * */
     @PostMapping("/login")
-
     public String login(HttpServletRequest request,Model model, User user) {
         boolean isValidUser = userService.validateUser(user.getUsername(), user.getPassword());
+        // alert로 알림메세지를 보내기
         if (!isValidUser) {
             model.addAttribute("response", "invalid username or password");
             model.addAttribute("bodyItem", "Member");
             model.addAttribute("direct", "login");
             return "index";
-        }else{
-            model.addAttribute("user", user);
         }
         model.addAttribute("bodyItem", "Member");
         UserDetails userDetails = new MyUserDetails(user.getUsername(), user.getPassword());
@@ -65,6 +70,10 @@ public class Controller implements WebMvcConfigurer {
         session.setAttribute("jwtToken", token);
         return "redirect:/";
     }
+    
+    /**
+     * 로그인 페이지
+     * */
     @GetMapping("/login")
     public String showLoginForm(Model model) {
         model.addAttribute("bodyItem", "Member");
@@ -72,6 +81,9 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
+    /**
+     * 로그아웃 요청
+     * */
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {
 
@@ -87,7 +99,9 @@ public class Controller implements WebMvcConfigurer {
         return "redirect:/";
     }
 
-
+    /**
+     * 회원가입 페이지
+     * */
     @GetMapping("/signup")
     public String showSignupForm(Model model) {
         model.addAttribute("bodyItem", "Member");
@@ -95,7 +109,9 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
-
+    /**
+     * 회원가입 정보 post 처리
+     * */
     @PostMapping("/signup")
     public String signup(User user, HttpServletResponse response,Model model) {
         boolean exists = userService.checkUsernameExists(user.getUsername());
@@ -105,18 +121,20 @@ public class Controller implements WebMvcConfigurer {
             model.addAttribute("direct", "signup");
             return "index";
         }else{
+            // username 중복검사후 유효할 때 계정을 만들고 토큰을 부여함
             userService.createUser(user);
             UserDetails userDetails = new MyUserDetails(user.getUsername(), user.getPassword());
             String token = jwtUtil.generateToken(userDetails);
             Cookie cookie = new Cookie("jwtToken", token);
             cookie.setMaxAge(60 * 60);
             response.addCookie(cookie);
-
             return "redirect:/";
         }
-
     }
 
+    /**
+     * 포스트 내부 페이지
+     * */
     @GetMapping("/read/{id}")
     public String viewRead(Model model,HttpServletRequest request, @PathVariable("id") String id ) {
         HttpSession session = request.getSession();
@@ -136,7 +154,9 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
-
+    /**
+     * 글작성 페이지
+     * */
     @GetMapping("/post")
     public String viewPost(Model model,HttpServletRequest request) {
         HttpSession session = request.getSession();
@@ -150,6 +170,9 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
+    /**
+     * 글 수정 페이지
+     * */
     @GetMapping("/post/{id}")
     public String viewPostById(Model model,HttpServletRequest request, @PathVariable("id") String id ) {
         HttpSession session = request.getSession();
@@ -168,21 +191,27 @@ public class Controller implements WebMvcConfigurer {
         return "index";
     }
 
+    /**
+     * 글 수정 post 처리
+     * */
     @PostMapping("/post/{id}")
     public String updatePostById(@ModelAttribute Post post, @PathVariable("id") String id) {
-
         postService.updatePost(id, post);
-
         return "redirect:/";
     }
-
+    
+    /**
+     * 글 작성 post 처리
+     * */
     @PostMapping("/post")
     public String post(Post post) {
         postService.savePost(post);
         return "redirect:/";
     }
 
-
+    /**
+     * 게시글 삭제 요청
+     * */
     @GetMapping("/delPost/{id}")
     public String delPost(HttpServletRequest request, @PathVariable("id") String id) {
         HttpSession session = request.getSession();
@@ -194,10 +223,12 @@ public class Controller implements WebMvcConfigurer {
             String author = post.getUsername();
             if(author.equals(userName)) {postService.deletePost(id);}
         }
-
-
         return "redirect:/";
     }
+
+    /**
+     * 정적파일 처리
+     * */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/js/**").addResourceLocations("classpath:/static/js/").setCachePeriod(60 * 60 * 24 * 365);
