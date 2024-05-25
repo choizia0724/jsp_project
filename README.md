@@ -89,7 +89,7 @@ public class User {
 
 MVC를 분리하여 가독성을 향상시켰습니다.
 
-![image](https://github.com/choizia0724/jsp_project/assets/107836206/e5e6f7df-4033-435a-9b95-079cc44966d2)
+![image](https://github.com/choizia0724/jsp_project/assets/107836206/9c6c6745-53d2-408e-8348-44c89e2ea27e)
 
 Spring MVC의 @RestController와 @RequestMapping 어노테이션을 사용하여 RESTful API 엔드포인트를 구현하였습니다.
 
