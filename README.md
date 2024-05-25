@@ -40,28 +40,21 @@ MongoDB를 사용하였으며 JPA를 사용해 가독성있는 코드로 구성�
 SpringBoot로 서버를 구축하고 JWT로 회원의 정보를 보호하고 쿠키에 저장하여 만료기간을 설정합니다.
 
 이를 심도있게 공부하는 것을 목적으로 합니다.
-## DB Model
-JPA인 MongoRepository를 사용하여 쿼리문이 아닌 메소드를 이용하여 db를 조작합니다.
 
-이하는 Model입니다.
+## DB Model
+MongoRepository를 사용하여 쿼리문이 아닌 메소드를 이용하여 db를 조작합니다.
+
+![image](https://github.com/choizia0724/jsp_project/assets/107836206/8cc2840c-b575-4c55-8f9f-2f4fccc0139a)
 
 ```
+@Data
 @Document(collection = "posts")
 public class Post {
     @Id
-    @Getter
     private String id;
-    @Setter
-    @Getter
     private String title;
-    @Setter
-    @Getter
     private String content;
-    @Setter
-    @Getter
     private String username;
-    @Setter
-    @Getter
     private Date createdAt;
     public String getFormattedCreatedAt() {
         SimpleDateFormat sdf = new SimpleDateFormat("yy.MM.dd HH:mm");
@@ -70,15 +63,12 @@ public class Post {
 }
 ```
 ```
+@Data
 @Document(collection = "users")
 public class User {
     @Id
     private String id;
-    @Setter
-    @Getter
     private String username;
-    @Setter
-    @Getter
     private String password;
 }
 ```
@@ -102,3 +92,4 @@ MVC를 분리하여 가독성을 향상시켰습니다.
 ![image](https://github.com/choizia0724/jsp_project/assets/107836206/e5e6f7df-4033-435a-9b95-079cc44966d2)
 
 Spring MVC의 @RestController와 @RequestMapping 어노테이션을 사용하여 RESTful API 엔드포인트를 구현하였습니다.
+
